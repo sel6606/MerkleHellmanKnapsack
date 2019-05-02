@@ -62,7 +62,7 @@ vector<string> Encrypter::EncryptMessage(string message)
 	}
 
 	cout << "\nSuccessfully encrypted the text:\n" << message;
-	cout << "\nPublic Key: " << PrintVector(publicKey);
+	cout << "\n\nPublic Key: " << PrintVector(publicKey);
 	cout << "\nPrivate Key W: " << PrintVector(privateKeyW);
 	cout << "\nPrivate Key Q: " << privateKeyQ;
 	cout << "\nPrivate Key R: " << privateKeyR;
