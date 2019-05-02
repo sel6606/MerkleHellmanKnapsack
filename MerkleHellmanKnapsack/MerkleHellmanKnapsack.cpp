@@ -21,6 +21,8 @@ int main()
 
 	string d = e->DecryptMessage(s);
 
+	std::cout << "\n\nDecrypting using the private keys:\n" << d;
+
 	std::cout << "\n\nPress any key to close...";
 	std::cin.ignore();
 }

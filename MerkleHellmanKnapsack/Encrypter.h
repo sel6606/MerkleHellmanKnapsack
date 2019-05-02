@@ -47,6 +47,11 @@ private:
 	///<returns>The binary representation of the string</returns>
 	string ASCIIToBinary(string str);
 
+	///<summary>Convert the specified binary to ASCII text</summary>
+	///<param name="str">The binary to convert</param>
+	///<returns>The ASCII representation of the binary</returns>
+	string BinaryToASCII(string str);
+
 	///<summary>Calculate the gcd of the specified positive integers</summary>
 	///<param name="a">The first value</param>
 	///<param name="b">The second value</param>

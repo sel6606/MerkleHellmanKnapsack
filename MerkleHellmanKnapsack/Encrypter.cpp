@@ -139,7 +139,7 @@ string Encrypter::DecryptMessage(vector<string> cipherText)
 		}
 	}
 
-	return retVal;
+	return BinaryToASCII(retVal);
 }
 
 void Encrypter::GeneratePrivateKey()
@@ -183,6 +183,31 @@ string Encrypter::ASCIIToBinary(string str)
 		binary += temp;
 	}
 	return binary;
+}
+
+string Encrypter::BinaryToASCII(string str)
+{
+	string retVal = "";
+	//Convert the solution (if found) to an ASCII representation
+	std::bitset<8> bits;
+
+
+	for(int i = 0; i < str.size(); i+=8)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			if (str[i + j] == '1')
+			{
+				bits[7 - j] = true;
+			}
+			else
+			{
+				bits[7 - j] = false;
+			}
+		}
+		retVal += char(bits.to_ulong());
+	}
+	return retVal;
 }
 
 unsigned long long Encrypter::gcd(unsigned long long a, unsigned long long b)
