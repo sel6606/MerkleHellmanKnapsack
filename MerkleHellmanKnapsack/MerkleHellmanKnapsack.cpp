@@ -14,9 +14,9 @@ int main()
 	Encrypter * e = new Encrypter();
 	Attacker * a = new Attacker();
 
-	vector<string> s = e->EncryptMessage("a");
+	vector<string> s = e->EncryptMessage("hello how are you");
 
-	a->BreakMerkleHellmanKnapsack(e->publicKey, s);
+	std::cout << "\nAttempting to decrypt message:\n" << a->BreakMerkleHellmanKnapsack(e->publicKey, s) << "\n";
 
 	string d = e->DecryptMessage(s);
 

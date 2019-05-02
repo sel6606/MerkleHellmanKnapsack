@@ -16,7 +16,9 @@ string Attacker::BreakMerkleHellmanKnapsack(vector<unsigned long long> pubKey, v
 	originalN = 1;
 	originalM = pubKey.size();
 
-	vector<float> cText;
+	vector<double> cText;
+
+	string retVal = "";
 
 	//Convert the ciphertext back into number values
 	for (int i = 0; i < cipherText.size(); i++)
@@ -24,73 +26,98 @@ string Attacker::BreakMerkleHellmanKnapsack(vector<unsigned long long> pubKey, v
 		cText.push_back(stof(cipherText[i]));
 	}
 
-	int matrixSize = originalM + 1;
-
-	vector<vector<float>> matrix(matrixSize);
-
-	//Set up identity matrix
-	for (int i = 0; i < matrixSize; i++)
+	for (int iterations = 0; iterations < cText.size(); iterations++)
 	{
-		vector<float> temp;
-		for (int j = 0; j < originalM; j++)
+		int matrixSize = originalM + 1;
+
+		vector<vector<double>> matrix(matrixSize);
+
+		//Set up identity matrix
+		for (int i = 0; i < matrixSize; i++)
 		{
-			temp.push_back(0);
+			vector<double> temp;
+			for (int j = 0; j < originalM; j++)
+			{
+				temp.push_back(0);
+			}
+
+			if (i != matrixSize - 1)
+			{
+				temp[i] = 1;
+			}
+
+			matrix[i] = temp;
 		}
 
-		if (i != matrixSize - 1)
+		//Copy public key into the matrix
+		for (int i = 0; i < matrixSize - 1; i++)
 		{
-			temp[i] = 1;
+			matrix[i].push_back(pubKey[i]);
 		}
 
-		matrix[i] = temp;
-	}
+		matrix[matrixSize - 1].push_back(-cText[iterations]);
 
-	//Copy public key into the matrix
-	for (int i = 0; i < matrixSize - 1; i++)
-	{
-		matrix[i].push_back(pubKey[i]);
-	}
+		vector<vector<double>> matrixCopy = matrix;
 
-	matrix[matrixSize - 1].push_back(-cText[0]);
-
-	vector<vector<float>> matrixCopy = matrix;
-
-	//Reduce the copy of the matrix
-	matrixCopy = LLLReduce(matrixCopy);
-	vector<float> solution = GetSolution(matrix, matrixCopy);
-
-
-	if (solution.size() == 0)
-	{
-		matrixCopy = matrix;
-
-		float y = sqrt(matrixCopy.size()) * 0.5f;
-
-		for (int i = 0; i < matrixCopy[0].size() - 1; i++)
-		{
-			matrixCopy[matrixCopy.size() - 1][i] = 0.5f;
-		}
-
-		for (int i = 0; i < matrixCopy.size(); i++)
-		{
-			matrixCopy[i][matrixCopy[0].size() - 1] = matrixCopy[i][matrixCopy[0].size() - 1] * y;
-		}
-
+		//Reduce the copy of the matrix
 		matrixCopy = LLLReduce(matrixCopy);
-		solution = GetSolution(matrix, matrixCopy);
-	}
+		vector<double> solution = GetSolution(matrix, matrixCopy);
 
-	
-	return string();
+
+		if (solution.size() == 0)
+		{
+			matrixCopy = matrix;
+
+			double y = sqrt(matrixCopy.size()) * 0.5f;
+
+			for (int i = 0; i < matrixCopy[0].size() - 1; i++)
+			{
+				matrixCopy[matrixCopy.size() - 1][i] = 0.5f;
+			}
+
+			for (int i = 0; i < matrixCopy.size(); i++)
+			{
+				matrixCopy[i][matrixCopy[0].size() - 1] = matrixCopy[i][matrixCopy[0].size() - 1] * y;
+			}
+
+			matrixCopy = LLLReduce(matrixCopy);
+			solution = GetSolution(matrix, matrixCopy);
+		}
+
+		std::bitset<8> bits;
+
+		if (solution.size() != 0)
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				if (solution[i] == 1)
+				{
+					bits[7 - i] = true;
+				}
+				else
+				{
+					bits[7 - i] = false;
+				}
+			}
+			retVal += char(bits.to_ulong());
+		}
+		else
+		{
+			retVal += '?';
+		}
+
+
+	}
+	return retVal;
 }
 
-vector<vector<float>> Attacker::LLLReduce(vector<vector<float>> matrix)
+vector<vector<double>> Attacker::LLLReduce(vector<vector<double>> matrix)
 {
 	int mSize = matrix.size();
 
 	int count = 0;
 
-	vector<vector<float>> gramSchmidt = DoGramSchmidt(matrix);
+	vector<vector<double>> gramSchmidt = DoGramSchmidt(matrix);
 
 	bool done = false;
 	bool isReduced = false;
@@ -125,19 +152,19 @@ vector<vector<float>> Attacker::LLLReduce(vector<vector<float>> matrix)
 	return matrix;
 }
 
-vector<vector<float>> Attacker::DoGramSchmidt(vector<vector<float>> matrix)
+vector<vector<double>> Attacker::DoGramSchmidt(vector<vector<double>> matrix)
 {
-	int n = matrix.size();
-	int m = matrix[0].size();
+	
+	int i, j, k;
 
-	vector<vector<float>> matrix1 = matrix;
+	int n = matrix.size();
 
 	a.clear();
 
-	for (int i = 0; i < m; i++)
+	for (i = 0; i < n; i++)
 	{
-		vector<float> temp;
-		for (int j = 0; j < n; j++)
+		vector<double> temp;
+		for (j = 0; j < n; j++)
 		{
 			temp.push_back(0);
 		}
@@ -145,21 +172,37 @@ vector<vector<float>> Attacker::DoGramSchmidt(vector<vector<float>> matrix)
 		a.push_back(temp);
 	}
 
-	for (int i = 1; i <= n - 1; i++)
+	for (i = 0; i < n; ++i)
 	{
-		matrix1[i] = matrix[i];
-		for (int j = 0; j <= i - 1; j++)
+		for (j = 0; j < i; ++j)
 		{
-			a[j][i] = (DotProduct(matrix1[j], matrix[i])) / (DotProduct(matrix1[j], matrix1[j]));
-			matrix1[i] = SubtractVector(matrix1[i],(MultiplyVector(matrix1[j], a[j][i])));
+			double scalingFactor = round(DotProduct(matrix[j], matrix[i]) / DotProduct(matrix[j], matrix[j]));
+
+			a[j][i] = scalingFactor;
+
+			for (k = 0; k < n; k++)
+			{
+				matrix[i][k] -= scalingFactor * matrix[j][k];
+			}
 		}
 	}
-	return matrix1;
+
+	for (i = 0; i < n; ++i)
+	{
+		double norm = sqrt(DotProduct(matrix[i], matrix[i]));
+
+		for (j = 0; j < n; j++)
+		{
+			matrix[i][j] =round(matrix[i][j] / norm);
+		}
+	}
+
+	return matrix;
 }
 
-float Attacker::DotProduct(vector<float> a, vector<float> b)
+double Attacker::DotProduct(vector<double> a, vector<double> b)
 {
-	float sum = 0;
+	double sum = 0;
 
 	for (int i = 0; i < a.size(); i++)
 	{
@@ -168,9 +211,9 @@ float Attacker::DotProduct(vector<float> a, vector<float> b)
 	return sum;
 }
 
-vector<float> Attacker::MultiplyVector(vector<float> a, float b)
+vector<double> Attacker::MultiplyVector(vector<double> a, double b)
 {
-	vector<float> retVal;
+	vector<double> retVal;
 
 	for (int i = 0; i < a.size(); i++)
 	{
@@ -179,9 +222,9 @@ vector<float> Attacker::MultiplyVector(vector<float> a, float b)
 	return retVal;
 }
 
-vector<float> Attacker::SubtractVector(vector<float> a, vector<float> b)
+vector<double> Attacker::SubtractVector(vector<double> a, vector<double> b)
 {
-	vector<float> retVal;
+	vector<double> retVal;
 
 	for (int i = 0; i < a.size(); i++)
 	{
@@ -190,9 +233,9 @@ vector<float> Attacker::SubtractVector(vector<float> a, vector<float> b)
 	return retVal;
 }
 
-vector<float> Attacker::AddVector(vector<float> a, vector<float> b)
+vector<double> Attacker::AddVector(vector<double> a, vector<double> b)
 {
-	vector<float> retVal;
+	vector<double> retVal;
 
 	for (int i = 0; i < a.size(); i++)
 	{
@@ -201,15 +244,15 @@ vector<float> Attacker::AddVector(vector<float> a, vector<float> b)
 	return retVal;
 }
 
-bool Attacker::IsReducedBasis(vector<vector<float>> matrix, vector<vector<float>> matrix1, vector<vector<float>> currentA)
+bool Attacker::IsReducedBasis(vector<vector<double>> matrix, vector<vector<double>> matrix1, vector<vector<double>> currentA)
 {
-	vector<float> temp;
+	vector<double> temp;
 
 	for (int j = 0; j < matrix.size() - 1; j++)
 	{
 		temp = AddVector(matrix1[j], MultiplyVector(matrix1[j + 1], currentA[j][j + 1]));
-		float lhs = DotProduct(temp, temp);
-		float rhs = DotProduct(matrix1[j], matrix1[j]) * 0.75f;
+		double lhs = DotProduct(temp, temp);
+		double rhs = DotProduct(matrix1[j], matrix1[j]) * 0.75f;
 
 		if (lhs < rhs)
 		{
@@ -223,7 +266,7 @@ bool Attacker::IsReducedBasis(vector<vector<float>> matrix, vector<vector<float>
 	return true;
 }
 
-bool Attacker::CheckForZeros(vector<float> v)
+bool Attacker::CheckForZeros(vector<double> v)
 {
 	for (int i = originalM; i < v.size(); i++)
 	{
@@ -235,17 +278,17 @@ bool Attacker::CheckForZeros(vector<float> v)
 	return true;
 }
 
-vector<float> Attacker::GetSolution(vector<vector<float>> matrix, vector<vector<float>> matrix1)
+vector<double> Attacker::GetSolution(vector<vector<double>> matrix, vector<vector<double>> matrix1)
 {
 	for (int i = 0; i < matrix1.size(); i++)
 	{
-		vector<float> vectorToCheck = matrix1[i];
+		vector<double> vectorToCheck = matrix1[i];
 		bool vectorInRangePositive = true;
 		bool vectorInRangeNegative = true;
 
 		for (int j = 0; j < originalM; j++)
 		{
-			int n = vectorToCheck[j];
+			double n = vectorToCheck[j];
 
 			if ((n != 0) && (n != 1))
 			{
@@ -256,7 +299,7 @@ vector<float> Attacker::GetSolution(vector<vector<float>> matrix, vector<vector<
 
 		for (int j = 0; j < originalM; j++)
 		{
-			int n = vectorToCheck[j];
+			double n = vectorToCheck[j];
 
 			if ((n != 0) && (n != -1))
 			{
@@ -276,5 +319,5 @@ vector<float> Attacker::GetSolution(vector<vector<float>> matrix, vector<vector<
 			return matrix1[i];
 		}
 	}
-	return vector<float>();
+	return vector<double>();
 }
