@@ -150,6 +150,8 @@ vector<vector<double>> Attacker::LLLReduce(vector<vector<double>> matrix)
 
 		gramSchmidt = DoGramSchmidt(matrix);
 
+		//If we have a reduced basis, we are done
+		//Otherwise, do Gram-Schmidt again
 		if (IsReducedBasis(matrix, gramSchmidt, a))
 		{
 			done = true;
@@ -172,6 +174,7 @@ vector<vector<double>> Attacker::DoGramSchmidt(vector<vector<double>> matrix)
 
 	a.clear();
 
+	//Initialize 'a' as a matrix of zeros
 	for (i = 0; i < n; i++)
 	{
 		vector<double> temp;
@@ -183,6 +186,7 @@ vector<vector<double>> Attacker::DoGramSchmidt(vector<vector<double>> matrix)
 		a.push_back(temp);
 	}
 
+	//Loop through the matrix
 	for (i = 0; i < n; ++i)
 	{
 		for (j = 0; j < i; ++j)
@@ -291,6 +295,7 @@ vector<double> Attacker::GetSolution(vector<vector<double>> matrix, vector<vecto
 		bool vectorInRangePositive = true;
 		bool vectorInRangeNegative = true;
 
+		//See if the vector is in the positive range
 		for (int j = 0; j < originalM; j++)
 		{
 			double n = vectorToCheck[j];
@@ -302,6 +307,7 @@ vector<double> Attacker::GetSolution(vector<vector<double>> matrix, vector<vecto
 			}
 		}
 
+		//See if the vector is in negative range
 		for (int j = 0; j < originalM; j++)
 		{
 			double n = vectorToCheck[j];
@@ -313,12 +319,14 @@ vector<double> Attacker::GetSolution(vector<vector<double>> matrix, vector<vecto
 			}
 		}
 
+		//Make sure there are zeros
 		if (!CheckForZeros(vectorToCheck))
 		{
 			vectorInRangePositive = false;
 			vectorInRangeNegative = false;
 		}
 
+		//If the vector is either in the positive or negative range, then we have found a solution
 		if (vectorInRangePositive || vectorInRangeNegative)
 		{
 			return matrix1[i];
