@@ -17,10 +17,12 @@ vector<string> Encrypter::EncryptMessage(string message)
 	vector<unsigned long long> sequence;
 	unsigned long long sum = 0;
 
+	srand(time(0));
+
 	//First, generate the private key sequence (w)
 	for (int i = 0; i < 8; i++)
 	{
-		unsigned long long increase = 1;
+		unsigned long long increase = rand() % 10 + 1;
 		unsigned long long newValue = sum + increase;
 		sum += newValue;
 		sequence.push_back(newValue);
@@ -58,6 +60,12 @@ vector<string> Encrypter::EncryptMessage(string message)
 		//Add the ciphertext for this letter to the list
 		retVal.push_back(to_string(cipherText));
 	}
+
+	cout << "\nSuccessfully encrypted the text:\n" << message;
+	cout << "\nPublic Key: " << PrintVector(publicKey);
+	cout << "\nPrivate Key W: " << PrintVector(privateKeyW);
+	cout << "\nPrivate Key Q: " << privateKeyQ;
+	cout << "\nPrivate Key R: " << privateKeyR;
 
 	//Return all the ciphertext values we generated
 	return retVal;
@@ -140,7 +148,7 @@ void Encrypter::GeneratePrivateKey()
 	srand(time(NULL));
 
 	//Get a random private key 'Q' that is bigger than the sum of the elements in the superincreasing sequence
-	privateKeyQ = rand() % 5 + sumW;
+	privateKeyQ = rand() % 50 + sumW;
 
 	//Get a random private key 'R' that is within the range [1,Q)
 	privateKeyR = rand() % privateKeyQ;
@@ -209,4 +217,24 @@ long long Encrypter::gcdExtended(long long a, long long b, long long * x, long l
 	*y = x1;
 
 	return gcd;
+}
+
+string Encrypter::PrintVector(vector<unsigned long long> toPrint)
+{
+	string retVal = "{";
+
+	for (int i = 0; i < toPrint.size(); i++)
+	{
+		if (i == toPrint.size() - 1)
+		{
+			retVal.append(to_string(toPrint[i]));
+		}
+		else
+		{
+			retVal.append(to_string(toPrint[i]).append(","));
+		}
+	}
+
+	retVal += "}";
+	return retVal;
 }

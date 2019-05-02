@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -73,7 +74,10 @@ private:
 	//Random integer such r and q are coprime
 	unsigned long long privateKeyR;
 
-
+	///<summary>Converts the provided vector into a string for printing</summary>
+	///<param name="toPrint">The vector to convert</param>
+	///<returns>A string representing the values of the vector</returns>
+	string PrintVector(vector<unsigned long long> toPrint);
 
 };
 

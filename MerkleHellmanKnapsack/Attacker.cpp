@@ -26,6 +26,7 @@ string Attacker::BreakMerkleHellmanKnapsack(vector<unsigned long long> pubKey, v
 		cText.push_back(stof(cipherText[i]));
 	}
 
+	//Run the algorithm for each piece of ciphertext
 	for (int iterations = 0; iterations < cText.size(); iterations++)
 	{
 		int matrixSize = originalM + 1;
@@ -55,6 +56,7 @@ string Attacker::BreakMerkleHellmanKnapsack(vector<unsigned long long> pubKey, v
 			matrix[i].push_back(pubKey[i]);
 		}
 
+		//Copy the ciphertext into the matrix
 		matrix[matrixSize - 1].push_back(-cText[iterations]);
 
 		vector<vector<double>> matrixCopy = matrix;
@@ -63,7 +65,8 @@ string Attacker::BreakMerkleHellmanKnapsack(vector<unsigned long long> pubKey, v
 		matrixCopy = LLLReduce(matrixCopy);
 		vector<double> solution = GetSolution(matrix, matrixCopy);
 
-
+		
+		//If we did not find a solution, attempt to try again with a different basis
 		if (solution.size() == 0)
 		{
 			matrixCopy = matrix;
@@ -84,6 +87,8 @@ string Attacker::BreakMerkleHellmanKnapsack(vector<unsigned long long> pubKey, v
 			solution = GetSolution(matrix, matrixCopy);
 		}
 
+
+		//Convert the solution (if found) to an ASCII representation
 		std::bitset<8> bits;
 
 		if (solution.size() != 0)
@@ -103,11 +108,14 @@ string Attacker::BreakMerkleHellmanKnapsack(vector<unsigned long long> pubKey, v
 		}
 		else
 		{
+			//If we were unable to decrypt, represent it with a question mark
 			retVal += '?';
 		}
 
 
 	}
+
+	//Return a string representing the decrypted message
 	return retVal;
 }
 
@@ -115,14 +123,17 @@ vector<vector<double>> Attacker::LLLReduce(vector<vector<double>> matrix)
 {
 	int mSize = matrix.size();
 
+	//Keep track of the number of iterations
 	int count = 0;
 
+	//Initial Gram-Schmidt reduction
 	vector<vector<double>> gramSchmidt = DoGramSchmidt(matrix);
 
 	bool done = false;
 	bool isReduced = false;
 
-	while (!done)
+	//Continue doing Gram-Schmidt until we are done reducing or we've gone through too many iterations
+	while (!done || count > 2000)
 	{
 		for (int i = 1; i <= mSize - 1; i++)
 		{
@@ -187,16 +198,6 @@ vector<vector<double>> Attacker::DoGramSchmidt(vector<vector<double>> matrix)
 		}
 	}
 
-	for (i = 0; i < n; ++i)
-	{
-		double norm = sqrt(DotProduct(matrix[i], matrix[i]));
-
-		for (j = 0; j < n; j++)
-		{
-			matrix[i][j] =round(matrix[i][j] / norm);
-		}
-	}
-
 	return matrix;
 }
 
@@ -251,7 +252,11 @@ bool Attacker::IsReducedBasis(vector<vector<double>> matrix, vector<vector<doubl
 	for (int j = 0; j < matrix.size() - 1; j++)
 	{
 		temp = AddVector(matrix1[j], MultiplyVector(matrix1[j + 1], currentA[j][j + 1]));
+
+		//Calculate the left hand side of the equation
 		double lhs = DotProduct(temp, temp);
+
+		//Calculate the right hand side of the equation
 		double rhs = DotProduct(matrix1[j], matrix1[j]) * 0.75f;
 
 		if (lhs < rhs)
