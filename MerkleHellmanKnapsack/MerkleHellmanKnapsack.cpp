@@ -12,8 +12,6 @@ int main()
 	Encrypter * e = new Encrypter();
 	Attacker * a = new Attacker();
 
-	//vector<string> s = e->EncryptMessage("hello how are you");
-
 	vector<string> s = e->EncryptMessage("I WAS I THINK WELL EDUCATED FOR THE STANDARD OF THE DAY MY SISTER AND I HAD A GERMAN GOVERNESS A VERY SENTIMENTAL CREATURE SHE TAUGHT US THE LANGUAGE OF FLOWERS A FORGOTTEN STUDY NOWADAYS BUT MOST CHARMING A YELLOW TULIP FOR INSTANCE MEANS HOPELESS LOVE WHILE A CHINA ASTER MEANS I DIE OF JEALOUSY AT YOUR FEET");
 
 	std::cout << "\n\nAttempting to break encryption:\n";
