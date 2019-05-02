@@ -8,8 +8,6 @@
 
 int main()
 {
-    std::cout << "Hello World!\n"; 
-
 
 	Encrypter * e = new Encrypter();
 	Attacker * a = new Attacker();
@@ -23,5 +21,6 @@ int main()
 
 	string d = e->DecryptMessage(s);
 
-	int i = 0;
+	std::cout << "\n\nPress any key to close...";
+	std::cin.ignore();
 }

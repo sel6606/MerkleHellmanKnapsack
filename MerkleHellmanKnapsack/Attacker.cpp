@@ -133,7 +133,7 @@ vector<vector<double>> Attacker::LLLReduce(vector<vector<double>> matrix)
 	bool isReduced = false;
 
 	//Continue doing Gram-Schmidt until we are done reducing or we've gone through too many iterations
-	while (!done || count > 2000)
+	while (!done && count < 100)
 	{
 		for (int i = 1; i <= mSize - 1; i++)
 		{
