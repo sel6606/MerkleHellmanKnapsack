@@ -140,7 +140,7 @@ void Encrypter::GeneratePrivateKey()
 	srand(time(NULL));
 
 	//Get a random private key 'Q' that is bigger than the sum of the elements in the superincreasing sequence
-	privateKeyQ = rand() % 50 + sumW;
+	privateKeyQ = rand() % 5 + sumW;
 
 	//Get a random private key 'R' that is within the range [1,Q)
 	privateKeyR = rand() % privateKeyQ;
